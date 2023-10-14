@@ -14,7 +14,7 @@
 import * as THREE from 'three'
 import { FontLoader }  from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'https://unpkg.com/three@0.157.0/examples/jsm/geometries/TextGeometry.js'
-  
+import { OrbitControls } from  "https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js"
 // 创建场景
 var scene = new THREE.Scene();
 
@@ -27,44 +27,46 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-var light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(0, 0, 10);
-scene.add(light);
-  
+// 添加 OrbitControls
+var controls = new OrbitControls(camera, renderer.domElement);
+
 // 加载字体
-const loader = new FontLoader();
-
-loader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regular.typeface.json', function (font) {
-
-  const textGeometry = new TextGeometry('Happy birthday!Ji 10.14', {
+var fontLoader = new FontLoader();
+fontLoader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regular.typeface.json', function(font) {
+  // 设置字体参数
+  var textOptions = {
     font: font,
-    size: 80,
-    height: 5,
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 2,
-    bevelSize: 1,
-    bevelOffset: 0.5,
-    bevelSegments: 3,
-  });
+    size: 1, // 文字大小
+    height: 0.5, // 文字厚度
+    curveSegments: 12, // 曲线细分数，越大越平滑
+    bevelEnabled: false // 是否添加斜角
+  };
 
-  const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+  // 创建文字对象
+  var textGeometry = new TextGeometry('Happy Birthday\nJi\n2023.10.14', textOptions);
+  var textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  var textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
-  // 将文本对象添加到场景中
+  // 调整文字位置
+  textMesh.position.x = -2;
+  textMesh.position.y = 0;
+
+  // 将文字对象添加到场景中
   scene.add(textMesh);
 });
+
 // 渲染循环
 function animate() {
   requestAnimationFrame(animate);
 
-  // 光源旋转
-  light.position.x = Math.sin(Date.now() * 0.001) * 5;
-  light.position.y = Math.cos(Date.now() * 0.001) * 5;
+  // 更新控制器
+  controls.update();
 
+  // 渲染场景
   renderer.render(scene, camera);
 }
 animate();
+
 </script>
 </body>
 </html>
