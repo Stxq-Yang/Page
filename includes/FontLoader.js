@@ -1,9 +1,3 @@
-import {
-	FileLoader,
-	Loader,
-	ShapePath
-} from 'three';
-
 class FontLoader extends Loader {
 
 	constructor( manager ) {
