@@ -21,9 +21,11 @@ document.body.appendChild(renderer.domElement);
 const fontLoader = new THREE.FontLoader();
 
 // 加载字体
-fontLoader.load('font.json', function(font) {
+const loader = new THREE.TTFLoader();
 
-  const textGeometry = new THREE.TextGeometry( 'Hello, World!', {
+loader.load('font.ttf', function (font) {
+
+  const textGeometry = new THREE.TextGeometry('Happy birthday!Ji', {
     font: font,
     size: 80,
     height: 5,
@@ -32,7 +34,7 @@ fontLoader.load('font.json', function(font) {
     bevelThickness: 2,
     bevelSize: 1,
     bevelOffset: 0.5,
-    bevelSegments: 3
+    bevelSegments: 3,
   });
 
   const textMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
