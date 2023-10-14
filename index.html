@@ -20,7 +20,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // 创建控制器
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
+const controls = new THREE.OrbitControls.OrbitControls(camera, renderer.domElement);
 
 // 添加3D文字
 const fontLoader = new THREE.FontLoader();
