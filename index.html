@@ -12,7 +12,8 @@
 <body>
 <script type="module">
 import * as THREE from 'three'
-import { TTFLoader }  from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/TTFLoader.js'
+import { FontLoader }  from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/FontLoader.js'
+import { TextGeometry } from 'https://unpkg.com/browse/three@0.157.0/examples/jsm/geometries/TextGeometry.js'
 // 创建场景
 var scene = new THREE.Scene();
 
@@ -26,11 +27,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // 加载字体
-const loader = new TTFLoader();
+const loader = new FontLoader();
 
-loader.load('font.ttf', function (font) {
+loader.load('https://unpkg.com/browse/three@0.157.0/examples/fonts/helvetiker_regular.typeface.json', function (font) {
 
-  const textGeometry = new THREE.TextGeometry('Happy birthday!Ji', {
+  const textGeometry = new TextGeometry('Happy birthday!Ji', {
     font: font,
     size: 80,
     height: 5,
