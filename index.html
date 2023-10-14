@@ -13,8 +13,9 @@
 <script type="module">
 import * as THREE from 'three'
 import { FontLoader }  from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/FontLoader.js'
-import { TextGeometry } from 'https://unpkg.com/three@0.157.0/examples/jsm/geometries/TextGeometry.js'
+import { TextGeometry,TextGeometryUtils} from 'https://unpkg.com/three@0.157.0/examples/jsm/geometries/TextGeometry.js'
 import { OrbitControls } from  "https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js"
+  
 // 创建场景
 var scene = new THREE.Scene();
 
@@ -26,9 +27,12 @@ camera.position.z = 5;
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
-// 添加 OrbitControls
+  
 var controls = new OrbitControls(camera, renderer.domElement);
+// 添加光源
+var light = new THREE.PointLight(0xffffff, 1, 100);
+light.position.set(0, 0, 5);
+scene.add(light);
 
 // 加载字体
 var fontLoader = new FontLoader();
@@ -43,8 +47,20 @@ fontLoader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regul
   };
 
   // 创建文字对象
-  var textGeometry = new TextGeometry('Happy Birthday,Ji!\n2023.10.14', textOptions);
-  var textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  var textGeometry = new TextGeometry('Happy Birthday\nJi\n2023.10.14', textOptions);
+  // 计算文字对象的包围盒
+  textGeometry.computeBoundingBox();
+  
+  // 获取文字对象的宽度和高度
+  var textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+  var textHeight = textGeometry.boundingBox.max.y - textGeometry.boundingBox.min.y;
+  
+  // 将文字对象居中对齐
+  TextGeometryUtils.center(textGeometry);
+  // 创建光照材质
+  var textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 1 });
+
+  // 应用材质到文字对象
   var textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
   // 调整文字位置
@@ -55,13 +71,18 @@ fontLoader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regul
   scene.add(textMesh);
 });
 
+// 创建镜面地面
+var groundGeometry = new THREE.PlaneGeometry(10, 10);
+var groundMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.4, metalness: 1 });
+var groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
+groundMesh.rotation.x = -Math.PI / 2; // 使地面与 x-z 平面平行
+scene.add(groundMesh);
+
 // 渲染循环
 function animate() {
   requestAnimationFrame(animate);
-
   // 更新控制器
   controls.update();
-
   // 渲染场景
   renderer.render(scene, camera);
 }
