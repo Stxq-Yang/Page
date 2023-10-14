@@ -1,1 +1,55 @@
+<html>
+<head>
+<title>季泽松生日快乐</title>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+<script>
 
+// 创建场景
+var scene = new THREE.Scene();
+
+// 创建相机
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+// 创建渲染器
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// 创建控制器
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+// 添加天空盒子
+const skyTexture = new THREE.TextureLoader().load('sky.jpg');
+const skyBox = new THREE.Mesh(new THREE.SphereGeometry(100, 32, 32), new THREE.MeshBasicMaterial({ map: skyTexture }));
+scene.add(skyBox);
+
+// 添加地面
+const groundTexture = new THREE.TextureLoader().load('ground.png');
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshBasicMaterial({ map: groundTexture }));
+ground.rotation.x = -Math.PI / 2;
+scene.add(ground);
+
+// 添加3D文字
+const fontLoader = new THREE.FontLoader();
+fontLoader.load('font.json', (font) => {
+  const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const textGeometry = new THREE.TextGeometry('Happy Birthday', { font: font, size: 1, height: 0.2 });
+  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+  textMesh.position.set(-2, 0, 0);
+  scene.add(textMesh);
+});
+
+// 渲染循环
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
