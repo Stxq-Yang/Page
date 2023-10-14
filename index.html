@@ -48,7 +48,7 @@ loader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regular.t
     bevelSegments: 3,
   });
 
-  const textMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+  const textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
   const textMesh = new THREE.Mesh(textGeometry, textMaterial);
 
   // 将文本对象添加到场景中
