@@ -29,11 +29,17 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
   
 var controls = new OrbitControls(camera, renderer.domElement);
+  
 // 添加光源
-var light = new THREE.PointLight(0xffffff, 2, 1000);
-light.position.set(0, 0, 5);
-scene.add(light);
+const dirLight = new THREE.DirectionalLight( 0xffffff, 0.4 );
+dirLight.position.set( 0, 0, 1 ).normalize();
+scene.add( dirLight );
 
+const pointLight = new THREE.PointLight( 0xffffff, 4.5, 0, 0 );
+pointLight.color.setHSL( Math.random(), 1, 0.5 );
+pointLight.position.set( 0, 100, 90 );
+scene.add( pointLight );
+  
 // 加载字体
 var fontLoader = new FontLoader();
 fontLoader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regular.typeface.json', function(font) {
