@@ -18,6 +18,7 @@ import { OrbitControls } from  "https://unpkg.com/three@0.157.0/examples/jsm/con
   
 // 创建场景
 var scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffa500);
 
 // 创建相机
 var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -56,7 +57,7 @@ fontLoader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regul
   var textGeometry = new TextGeometry('Happy Birthday\nJi\n2023.10.14', textOptions);
   
   // 创建光照材质
-  var textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 1 });
+  var textMaterial = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.2, metalness: 1 });
 
   // 应用材质到文字对象
   var textMesh = new THREE.Mesh(textGeometry, textMaterial);
@@ -68,13 +69,6 @@ fontLoader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regul
   // 将文字对象添加到场景中
   scene.add(textMesh);
 });
-
-// 创建镜面地面
-var groundGeometry = new THREE.PlaneGeometry(10, 10);
-var groundMaterial = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.4, metalness: 1 });
-var groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
-groundMesh.rotation.x = -Math.PI / 2; // 使地面与 x-z 平面平行
-scene.add(groundMesh);
 
 // 渲染循环
 function animate() {
