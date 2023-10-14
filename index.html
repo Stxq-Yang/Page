@@ -14,6 +14,7 @@
 import * as THREE from 'three'
 import { FontLoader }  from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/FontLoader.js'
 import { TextGeometry } from 'https://unpkg.com/three@0.157.0/examples/jsm/geometries/TextGeometry.js'
+  
 // 创建场景
 var scene = new THREE.Scene();
 
@@ -26,6 +27,10 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+var light = new THREE.PointLight(0xffffff, 1, 100);
+light.position.set(0, 0, 10);
+scene.add(light);
+  
 // 加载字体
 const loader = new FontLoader();
 
@@ -52,9 +57,13 @@ loader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regular.t
 // 渲染循环
 function animate() {
   requestAnimationFrame(animate);
+
+  // 光源旋转
+  light.position.x = Math.sin(Date.now() * 0.001) * 5;
+  light.position.y = Math.cos(Date.now() * 0.001) * 5;
+
   renderer.render(scene, camera);
 }
-
 animate();
 </script>
 </body>
