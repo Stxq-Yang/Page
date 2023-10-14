@@ -22,17 +22,6 @@ document.body.appendChild(renderer.domElement);
 // 创建控制器
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-// 添加天空盒子
-const skyTexture = new THREE.TextureLoader().load('sky.jpg');
-const skyBox = new THREE.Mesh(new THREE.SphereGeometry(100, 32, 32), new THREE.MeshBasicMaterial({ map: skyTexture }));
-scene.add(skyBox);
-
-// 添加地面
-const groundTexture = new THREE.TextureLoader().load('ground.png');
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshBasicMaterial({ map: groundTexture }));
-ground.rotation.x = -Math.PI / 2;
-scene.add(ground);
-
 // 添加3D文字
 const fontLoader = new THREE.FontLoader();
 fontLoader.load('font.json', (font) => {
