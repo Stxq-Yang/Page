@@ -18,17 +18,29 @@ camera.position.z = 5;
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
-
-// 添加3D文字
 const fontLoader = new THREE.FontLoader();
-fontLoader.load('font.json', (font) => {
-  const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  const textGeometry = new THREE.TextGeometry('Happy Birthday', { font: font, size: 1, height: 0.2 });
-  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-  textMesh.position.set(-2, 0, 0);
-  scene.add(textMesh);
-});
 
+// 加载字体
+fontLoader.load('font.json', function(font) {
+
+  const textGeometry = new THREE.TextGeometry( 'Hello, World!', {
+    font: font,
+    size: 80,
+    height: 5,
+    curveSegments: 12,
+    bevelEnabled: true,
+    bevelThickness: 2,
+    bevelSize: 1,
+    bevelOffset: 0.5,
+    bevelSegments: 3
+  });
+
+  const textMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+  const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+
+  // 将文本对象添加到场景中
+  scene.add(textMesh);
+s
 // 渲染循环
 function animate() {
   requestAnimationFrame(animate);
