@@ -13,7 +13,7 @@
 <script type="module">
 import * as THREE from 'three'
 import { FontLoader }  from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/FontLoader.js'
-import { TextGeometry,TextGeometryUtils} from 'https://unpkg.com/three@0.157.0/examples/jsm/geometries/TextGeometry.js'
+import { TextGeometry} from 'https://unpkg.com/three@0.157.0/examples/jsm/geometries/TextGeometry.js'
 import { OrbitControls } from  "https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js"
   
 // 创建场景
@@ -48,15 +48,7 @@ fontLoader.load('https://unpkg.com/three@0.157.0/examples/fonts/helvetiker_regul
 
   // 创建文字对象
   var textGeometry = new TextGeometry('Happy Birthday\nJi\n2023.10.14', textOptions);
-  // 计算文字对象的包围盒
-  textGeometry.computeBoundingBox();
   
-  // 获取文字对象的宽度和高度
-  var textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
-  var textHeight = textGeometry.boundingBox.max.y - textGeometry.boundingBox.min.y;
-  
-  // 将文字对象居中对齐
-  TextGeometryUtils.center(textGeometry);
   // 创建光照材质
   var textMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 1 });
 
