@@ -19,9 +19,6 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// 创建控制器
-const controls = new THREE.OrbitControls.OrbitControls(camera, renderer.domElement);
-
 // 添加3D文字
 const fontLoader = new THREE.FontLoader();
 fontLoader.load('font.json', (font) => {
@@ -35,7 +32,6 @@ fontLoader.load('font.json', (font) => {
 // 渲染循环
 function animate() {
   requestAnimationFrame(animate);
-  controls.update();
   renderer.render(scene, camera);
 }
 animate();
