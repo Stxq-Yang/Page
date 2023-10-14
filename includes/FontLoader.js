@@ -173,5 +173,3 @@ function createPath( char, scale, offsetX, offsetY, data ) {
 	return { offsetX: glyph.ha * scale, path: path };
 
 }
-
-export { FontLoader, Font };
