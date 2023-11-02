@@ -1,0 +1,189 @@
+<html>
+<body>
+<canvas id="screen" width=640 height=480></canvas>
+<script>
+//input output system
+class BIOS{
+	cursorX=0;
+	cursorY=0;
+	inputbuffer="";
+	lastinputbuffer="";
+	inputpos=0;
+	inputstartpos=0;
+	constructor(screen){
+		this.screen=screen;
+		this.gpu=screen.getContext("2d");
+		this.gpu.font="bold 12px serif"
+	}
+
+	clearScreen(){
+		this.gpu.fillStyle="black";
+		this.gpu.fillRect(0,0,640,480);
+		this.cursorX=0;
+		this.cursorY=0;
+	}
+
+	writechar(c){
+		this.gpu.fillStyle="black";
+		this.gpu.fillRect(this.cursorX+6,this.cursorY,9,15);
+		this.gpu.fillStyle="white";
+		this.gpu.fillText(c,this.cursorX+6,this.cursorY+12);
+	}
+	showCursor(){
+		this.gpu.beginPath();
+		this.gpu.lineWidth = 2;
+		this.gpu.lineCap = "round";
+		this.gpu.strokeStyle="white";
+		this.gpu.moveTo(this.cursorX+4,this.cursorY+1);
+		this.gpu.lineTo(this.cursorX+4,this.cursorY+13);
+		this.gpu.stroke();
+	}
+	hideCursor(){
+		this.gpu.beginPath();
+		this.gpu.strokeStyle="black";
+		this.gpu.lineWidth = 2;
+		this.gpu.lineCap = "square";
+		this.gpu.moveTo(this.cursorX+4,this.cursorY+1);
+		this.gpu.lineTo(this.cursorX+4,this.cursorY+13);
+		this.gpu.stroke();
+	}
+	MoveCursor(x,y){
+		this.hideCursor();
+		this.cursorX=x;
+		this.cursorY=y;
+	}
+	putchar(c){
+		this.writechar(c);
+		this.MoveCursor(this.cursorX+9,this.cursorY);
+	}
+	puts(str){
+		for (var i = 0; i < str.length; i++) {
+			if (str[i]=='\\'){
+				i++;
+				if (str[i]=='n'){
+					this.MoveCursor(0,this.cursorY+14);				
+				}else if (str[i]=='\\'){
+					this.putchar('\\');
+				}
+			}else{
+				this.putchar(str[i]);
+			}
+		}
+	}
+
+
+	FreshInputLine(){
+		this.gpu.fillStyle="black";
+		this.gpu.fillRect(this.inputstartpos,this.cursorY,640,15);
+		this.MoveCursor(this.inputstartpos,this.cursorY)
+		this.puts(this.inputbuffer);
+		if (this.inputpos!=this.inputbuffer.length){
+			this.MoveCursor(this.inputstartpos+this.inputpos*9,this.cursorY);
+		}
+	}
+
+	waitForRead() {
+	  return new Promise((resolve, reject) => {
+		let InputHandler = ()=>{
+			let key = event.key;
+			if (key == 'Enter') {
+				this.inputbuffer+='\\n';
+				this.inputpos=0;
+				this.FreshInputLine();
+				this.lastinputbuffer=this.inputbuffer;
+				this.inputbuffer="";
+				
+				document.removeEventListener('keydown',InputHandler);
+				resolve(this.lastinputbuffer); 
+				
+				return;
+			}else if (key == 'Delete' || key == 'Del') {
+				if (this.inputpos<=this.inputbuffer.length){
+					this.inputbuffer=this.inputbuffer.substr(0,this.inputpos)+this.inputbuffer.substr(this.inputpos+1);
+				}
+			}else if (key == 'Backspace') {
+				if (this.inputpos>0){
+					this.inputbuffer=this.inputbuffer.substr(0,this.inputpos-1)+this.inputbuffer.substr(this.inputpos);
+					this.inputpos--;
+				}
+			}else if (key == 'ArrowLeft') {
+				if (this.inputpos>0){
+					this.MoveCursor(this.cursorX-9,this.cursorY);
+					this.inputpos--;
+					return;
+				}
+			} else if (key == 'ArrowRight') {
+				if (this.inputpos<=this.inputbuffer.length){
+					this.MoveCursor(this.cursorX+9,this.cursorY);
+					this.inputpos++;
+					return;
+				}
+			}else if (key == 'F1'||key == 'F2'||key == 'F3'||key == 'F4'||key == 'F5'||key == 'F6'
+			||key == 'F7'||key == 'F8'||key == 'F9'||key == 'F10'||key == 'F11'||key == 'F12'||
+			key == 'Shift'||key == 'Control'||key=='CapsLock'||key=='Alt'||key=='Tab'||key=='Escape'
+			||key=='Insert'||key=='ArrowUp'||key=='ArrowDown'){}
+			else{
+				this.inputbuffer=this.inputbuffer.substr(0,this.inputpos)+key+this.inputbuffer.substr(this.inputpos);
+				this.inputpos++;
+			}
+			this.FreshInputLine();
+		};
+		this.inputstartpos=this.cursorX+5;
+		this.inputbuffer="";
+		this.inputpos=0;
+		document.addEventListener('keydown',InputHandler);
+	  });
+	}
+
+
+
+}
+class BasicOS{
+	constructor(){
+		this.bios=new BIOS(document.getElementById("screen"));
+		this.bios.clearScreen();
+	}
+	init(){
+		
+	}
+	mainloop(){
+		
+	}
+};
+class StarCatOSKernal extends BasicOS{
+	constructor(){
+		super();
+	}
+	init(){
+		this.bios.puts("StarCatOS\\nHello world\\n");
+		this.dir='/'
+	}
+	mainloop(){
+		
+		this.bios.puts(this.dir+">");
+		this.bios.waitForRead().then((data)=>{	
+			
+			let arr=data.split(" ");
+			let command=arr[0].replace("\\n","");
+			let args=arr.slice(1).join(" ").replace("\\n","");
+			this.bios.MoveCursor(0,this.bios.cursorY);
+			if (command=='echo'){
+				this.bios.puts(args+"\\n");
+			}else if (command=='clear'){
+				this.bios.clearScreen();
+			}else{
+				this.bios.puts("Error: Unknow command \""+command+"\"\\n");
+			}
+			this.mainloop();
+		});
+		
+		
+	}
+	  
+};
+StarCatOS=new StarCatOSKernal();
+StarCatOS.init();
+StarCatOS.mainloop();
+</script>
+</body>
+</html>
