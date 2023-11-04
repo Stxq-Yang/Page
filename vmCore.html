@@ -118,6 +118,9 @@ class BIOS{
 					this.inputpos++;
 					return;
 				}
+			}else if (key == '\\') {
+				this.inputbuffer=this.inputbuffer.substr(0,this.inputpos)+'\\\\'+this.inputbuffer.substr(this.inputpos);
+				this.inputpos++;
 			}else if (key == 'F1'||key == 'F2'||key == 'F3'||key == 'F4'||key == 'F5'||key == 'F6'
 			||key == 'F7'||key == 'F8'||key == 'F9'||key == 'F10'||key == 'F11'||key == 'F12'||
 			key == 'Shift'||key == 'Control'||key=='CapsLock'||key=='Alt'||key=='Tab'||key=='Escape'
@@ -139,6 +142,7 @@ class BIOS{
 
 }
 class BasicOS{
+	filesystem={};
 	constructor(){
 		this.bios=new BIOS(document.getElementById("screen"));
 		this.bios.clearScreen();
@@ -149,21 +153,113 @@ class BasicOS{
 	mainloop(){
 		
 	}
+	start(){
+		this.init();
+		this.mainloop();
+	}
 };
+
 class StarCatOSKernal extends BasicOS{
 	constructor(){
 		super();
+		this.filesystem={
+			'/':{
+				'home':{
+				},
+				'system':{
+				}
+			}
+		};
+		this.path=["/system/"];
 	}
+	/*constructor(filesystem){
+		super();
+		this.filesystem=filesystem;
+	}*/
 	init(){
 		this.bios.puts("StarCatOS\\nHello world\\n");
 		this.dir='/'
+		this.path=this.filesystem['/'];
+		this.showcurseInterval=setInterval(()=>{this.bios.showCursor()},250);
+		this.hidecurseInterval=setInterval(()=>{this.bios.hideCursor()},500);
+	}
+	parseDir(dir){
+		let darr=dir.split("/").filter(Boolean);
+		let path;
+		darr.unshift("/"); 
+		let flag=true;
+		while (flag){
+			path=this.filesystem;
+			flag=false;
+			for (let i=0;i<darr.length;i++){
+				let p=darr[i];
+				if (p=='.'){
+					darr.splice(i,1);
+					flag=true;
+					break;
+				}else if(p=='..'){
+					if (i>1){
+						darr.splice(i-1, 2);
+						flag=true;
+						break;
+					}else{
+						return undefined;
+					}
+				}else if (path[p]&&typeof(path[p])=='object'){
+					path=path[p];
+				}else{
+					return undefined;
+				}
+			}
+		}
+		darr.splice(0, 1);
+		let str='/'+darr.join('/');
+		if (str[str.length-1]!='/'){
+			str+='/';
+		}
+		return {'obj':path,'str':str};
+	}
+	remove(dir){
+		let darr=dir.split("/").filter(Boolean);
+		let path;
+		darr.unshift("/"); 
+		let flag=true;
+		while (flag){
+			path=this.filesystem;
+			flag=false;
+			for (let i=0;i<darr.length-1;i++){
+				let p=darr[i];
+				if (p=='.'){
+					darr.splice(i,1);
+					flag=true;
+					break;
+				}else if(p=='..'){
+					if (i>1){
+						darr.splice(i-1, 2);
+						flag=true;
+						break;
+					}else{
+						return false;
+					}
+				}else if (path[p]){
+					
+					
+				}else{
+					return false;
+				}
+			}
+		}
+		let p=darr[darr.length-1];
+		if (path[p]){
+			delete path[p];
+			return true;
+		}
+		return false;
 	}
 	mainloop(){
-		
 		this.bios.puts(this.dir+">");
 		this.bios.waitForRead().then((data)=>{	
-			
-			let arr=data.split(" ");
+			let arr=data.split(" ").filter(Boolean);
 			let command=arr[0].replace("\\n","");
 			let args=arr.slice(1).join(" ").replace("\\n","");
 			this.bios.MoveCursor(0,this.bios.cursorY);
@@ -171,19 +267,105 @@ class StarCatOSKernal extends BasicOS{
 				this.bios.puts(args+"\\n");
 			}else if (command=='clear'){
 				this.bios.clearScreen();
+			}else if (command=='cd'){
+				if (args[0]=='/'){
+					if (args[args.length-1]!='/'){
+						args+='/';
+					}
+					let d=this.parseDir(args);
+					if (d){
+						this.dir=d['str'];
+					}else{
+						this.bios.puts("Error: \""+args+"\" is not a directory \\n");
+					}
+				}else{
+					let path=this.dir+args;
+					if (path[path.length-1]!='/'){
+						path+='/';
+					}
+					let d=this.parseDir(path);
+					if (d){
+						this.dir=d['str'];
+					}else{
+						this.bios.puts("Error: \""+path+"\" is not a directory \\n");
+					}
+				}
+			}else if(command=='ls'){
+				if (args==''){
+					let path=this.parseDir(this.dir)['obj'];
+					for (let key in path) {
+					  this.bios.puts(key);
+					  this.bios.puts(' -');
+					  this.bios.puts((typeof(path[key])=='object')?'dir':'file');
+					  this.bios.puts('\\n');
+					}
+				}else{
+					if (args[0]=='/'){
+						if (args[args.length-1]!='/'){
+							args+='/';
+						}
+						let d=this.parseDir(args);
+						if (d){
+							for (let key in d['obj']) {
+							  this.bios.puts(key);
+							  this.bios.puts(' -');
+							  this.bios.puts((typeof(d['obj'][key])=='object')?'dir':'file');
+							  this.bios.puts('\\n');
+							}
+						}else{
+							this.bios.puts("Error: \""+args+"\" is not a directory \\n");
+						}
+					}else{
+						let path=this.dir+args;
+						if (path[path.length-1]!='/'){
+							path+='/';
+						}
+						let d=this.parseDir(path);
+						if (d){
+							for (let key in d['obj']) {
+							  this.bios.puts(key);
+							  this.bios.puts(' -');
+							  this.bios.puts((typeof(d['obj'][key])=='object')?'dir':'file');
+							  this.bios.puts('\\n');
+							}
+						}else{
+							this.bios.puts("Error: \""+args+"\" is not a directory \\n");
+						}
+					}
+					
+				}
+			}else if(command=='mkdir'){
+				let path=this.parseDir(this.dir)['obj'];
+				path[args]={};
+			}else if(command=='rm'){
+				if (args[0]=='/'){
+					if (this.remove(args)){
+						this.bios.puts("remove successfully\\n");
+					}else{
+						this.bios.puts("Error: \""+args+"\" is not a directory or a file\\n");
+					}
+				}else{
+					let path=this.dir+args;
+					if (this.remove(path)){
+						this.bios.puts("remove successfully\\n");
+					}else{
+						this.bios.puts("Error: \""+path+"\" is not a directory or a file\\n");
+					}
+				}
+			
+			}else if(data=='\\n'){
+				this.mainloop();
+				return ;
 			}else{
-				this.bios.puts("Error: Unknow command \""+command+"\"\\n");
+			
+				this.bios.puts("Error: Unknow command \""+command+"\" \\n");
 			}
 			this.mainloop();
 		});
-		
-		
 	}
-	  
 };
 StarCatOS=new StarCatOSKernal();
-StarCatOS.init();
-StarCatOS.mainloop();
+StarCatOS.start();
 </script>
 </body>
 </html>
